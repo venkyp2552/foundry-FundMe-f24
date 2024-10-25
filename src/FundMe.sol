@@ -1,10 +1,10 @@
 //SPDX-License-Identifier:MIT
 pragma solidity ^0.8.18;
 // import {AggregatorV3Interface} from "lib/chainlink-brownie-contracts/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
-import {AggregatorV3Interface} from "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
+import {AggregatorV3Interface} from "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
 
 import {PriceConverter} from "./PriceConverter.sol";
-error NotOwner();
+error FoundMe__NotOwner();
 
 contract FundMe{
         using PriceConverter for uint256;
@@ -14,7 +14,7 @@ contract FundMe{
         uint256 public constant MINIMUM_USD=5*10**18;
 
         modifier onlyOwner{
-            if(i_owner !=msg.sender)revert NotOwner();
+            if(i_owner !=msg.sender)revert FoundMe__NotOwner();
             _;
         }
 
