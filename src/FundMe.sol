@@ -1,5 +1,6 @@
 //SPDX-License-Identifier:MIT
 pragma solidity ^0.8.18;
+
 // import {AggregatorV3Interface} from "lib/chainlink-brownie-contracts/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
 import {AggregatorV3Interface} from "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
 
@@ -10,7 +11,7 @@ contract FundMe{
         using PriceConverter for uint256;
         mapping(address=>uint256) public addressToAmountFounded;
         address[] public funders;
-        address immutable i_owner;
+        address i_owner;
         uint256 public constant MINIMUM_USD=5*10**18;
 
         modifier onlyOwner{
