@@ -9,9 +9,9 @@ error FoundMe__NotOwner();
 
 contract FundMe{
         using PriceConverter for uint256;
-        mapping(address=>uint256) public addressToAmountFounded;
-        address[] public funders;
-        address public i_owner;
+        mapping(address=>uint256) private s_addressToAmountFounded;
+        address[] private s_funders;
+        address private i_owner;
         uint256 public constant MINIMUM_USD=5*10**18;
         AggregatorV3Interface private s_priceFeed;
         modifier onlyOwner{
@@ -25,9 +25,9 @@ contract FundMe{
         }
 
         function fund() public payable {
-            require(msg.value.getConversionRate(s_priceFeed) >= MINIMUM_USD,"You Need to spend More Ethers");
-            addressToAmountFounded[msg.sender]+=msg.value;
-            funders.push(msg.sender);
+            require(msg.value.getConversionRate(s_priceFeed) >= MINIMUM_USD, "You need to spend more ETH!");
+            s_addressToAmountFounded[msg.sender] += msg.value;
+            s_funders.push(msg.sender);
         }
         function getVersion() public view returns(uint256){
             // AggregatorV3Interface priceFeed=AggregatorV3Interface(0x694AA1769357215DE4FAC081bf1f309aDC325306);
@@ -35,11 +35,11 @@ contract FundMe{
             return s_priceFeed.version();
         }
         function withdraw() public onlyOwner{
-            for(uint256 funderIndex=0;funderIndex < funders.length;funderIndex++){
-                address funder=funders[funderIndex];
-                addressToAmountFounded[funder]=0;
+            for(uint256 funderIndex=0;funderIndex < s_funders.length;funderIndex++){
+                address funder=s_funders[funderIndex];
+                s_addressToAmountFounded[funder]=0;
             }
-            funders=new address[](0);
+            s_funders=new address[](0);
             (bool success,)=payable(msg.sender).call{value:address(this).balance}("");
             require(success,"Call Failed");
         }
@@ -52,5 +52,17 @@ contract FundMe{
             fund();
         }
 
+        // view / Pure Fucntion
+        function getAddressToAmountFounded(address fundingAddress) external view returns (uint256){
+            return s_addressToAmountFounded[fundingAddress];
+        }
+
+        function getFunder(uint256 index) external view returns(address){
+            return s_funders[index];
+        }
+
+        function getOwner() external view returns(address){
+            return i_owner;
+        }
 
 }
