@@ -3,8 +3,8 @@ pragma solidity ^0.8.18;
 
 import {console} from "lib/forge-std/src/Script.sol";
 import {Test} from "lib/forge-std/src/Test.sol";
-import {FundMe} from "../src/FundMe.sol";
-import {DeployFundMe} from "../script/DeployFundMe.s.sol";
+import {FundMe} from "../../src/FundMe.sol";
+import {DeployFundMe} from "../../script/DeployFundMe.s.sol";
 
 contract FundMeTest is Test{
         FundMe fundMe;
@@ -90,6 +90,27 @@ contract FundMeTest is Test{
         //Act
         vm.startPrank(fundMe.getOwner());
         fundMe.withdraw();
+        vm.stopPrank();
+
+        //assert
+        assertEq(address(fundMe).balance,0);
+        assertEq(startingOwnerBalance+startingFundMeBalance,fundMe.getOwner().balance);
+        }
+
+    function testCheapWithdrawFromMultipleFunders() public funded(){
+        uint160 numberOfFunders=10;
+        uint160 startingFundingIndex=1;
+        for(uint160 i = startingFundingIndex;i<numberOfFunders;i++){
+            //Now we want add some money to address instaed of using deal method we can use hoax method here it will alsowork same 
+            hoax(address(i),SEND_VALUE);
+            fundMe.fund{value:SEND_VALUE}();
+        }
+        uint256 startingOwnerBalance=fundMe.getOwner().balance;
+        uint256 startingFundMeBalance=address(fundMe).balance;
+
+        //Act
+        vm.startPrank(fundMe.getOwner());
+        fundMe.cheaperWithdraw();
         vm.stopPrank();
 
         //assert
